@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Controller
@@ -16,17 +17,18 @@ public class DataEntryController {
     private DataEntryRepository dataEntryRepository;
 
     @PostMapping(path="/add")
-    public @ResponseBody String addDataEntry(
+    public @ResponseBody DataEntry addDataEntry(
             @RequestParam Integer deviceId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
-            @RequestParam Integer value
+            @RequestParam String value
     ) {
         DataEntry dataEntry = new DataEntry();
         dataEntry.setDeviceID(deviceId);
         dataEntry.setMeasuredOn(measuredOn);
-        dataEntry.setValue(value);
+        BigDecimal valueInCentiMeter = new BigDecimal(value);
+        dataEntry.setValue(valueInCentiMeter.multiply(BigDecimal.TEN).intValue());
         dataEntryRepository.save(dataEntry);
-        return "Saved";
+        return dataEntry;
     }
 
     @GetMapping(path="/all")

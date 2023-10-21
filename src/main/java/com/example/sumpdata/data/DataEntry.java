@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * Representation of a row of sumppump data.
  * deviceID : ID of the sump pump monitor device.
  * measuredOn: The date time of the measurement
- * value: An integer value of the sump pump data. Intentionally define it as an Integer that represents
+ * value: An integer value of the sump pump data. Intentionally defines it as an Integer that represents
  *        the depth to the water line in the sump, measure in mm. Double or Float would be overkill as the
  *        precision of the depth is not that great (it doesn't have mm precision, probably a few mm at most)
  */
