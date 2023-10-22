@@ -35,3 +35,7 @@ Data sample:
 2023-08-07T00:02:05,9.7
 2023-08-07T00:03:05,9.8
 ```
+
+
+## License
+This software is released under [MIT License](https://github.com/ntamagawa/sumpdata/blob/main/LICENSE).

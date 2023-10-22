@@ -36,8 +36,10 @@ public class DataEntryController {
     }
 
     @GetMapping(path="/all")
-    public @ResponseBody List<DataEntry> getAllDataEntries() {
-        return dataEntryService.retrieveAll();
+    public @ResponseBody List<DataEntry> getAllDataEntries(
+            @RequestParam(required = false) Integer deviceID
+    ) {
+        return dataEntryService.retrieveAll(deviceID);
     }
 
 

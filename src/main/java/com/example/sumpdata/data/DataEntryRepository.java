@@ -1,6 +1,10 @@
 package com.example.sumpdata.data;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DataEntryRepository extends CrudRepository<DataEntry, DataEntryId> {
+import java.util.List;
+
+public interface DataEntryRepository extends JpaRepository<DataEntry, DataEntryId> {
+    List<DataEntry> findByDeviceID(Integer deviceID);
+
 }

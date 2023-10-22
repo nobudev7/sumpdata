@@ -9,7 +9,7 @@ public interface DataEntryService {
     public DataEntry add(int deviceId, LocalDateTime measuredOn, String depthInCm);
     public DataEntry add(int deviceId, LocalDateTime measuredOn, int depthInMm);
 
-    public List<DataEntry> retrieveAll();
+    public List<DataEntry> retrieveAll(Integer deviceID);
 
     public String processCSV(int deviceId, InputStream stream, String filename) throws IOException;
 

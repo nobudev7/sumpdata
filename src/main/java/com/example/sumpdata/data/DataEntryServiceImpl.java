@@ -36,12 +36,16 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
-    public List<DataEntry> retrieveAll() {
+    public List<DataEntry> retrieveAll(Integer deviceID) {
         // TODO: The plan is to have either paged results, or upper limit in number of entries to return.
         // Also, when we provide a way to set query conditions such as oder by measured on, this will need
         // to be improved.
         List<DataEntry> dataEntries = new ArrayList<>();
-        dataEntryRepository.findAll().forEach(dataEntries::add);
+        if (null == deviceID) {
+            dataEntryRepository.findAll().forEach(dataEntries::add);
+        } else {
+            dataEntryRepository.findByDeviceID(deviceID).forEach(dataEntries::add);
+        }
         return dataEntries;
     }
 
