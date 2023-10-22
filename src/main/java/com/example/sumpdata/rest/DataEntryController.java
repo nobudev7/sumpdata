@@ -1,20 +1,21 @@
-package com.example.sumpdata.restservice;
+package com.example.sumpdata.rest;
 
 import com.example.sumpdata.data.DataEntry;
-import com.example.sumpdata.data.DataEntryRepository;
+import com.example.sumpdata.data.DataEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping(path="/rest")
 public class DataEntryController {
+
     @Autowired
-    private DataEntryRepository dataEntryRepository;
+    private DataEntryService dataEntryService;
 
     @PostMapping(path="/add")
     public @ResponseBody DataEntry addDataEntry(
@@ -22,18 +23,12 @@ public class DataEntryController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
             @RequestParam String value
     ) {
-        DataEntry dataEntry = new DataEntry();
-        dataEntry.setDeviceID(deviceId);
-        dataEntry.setMeasuredOn(measuredOn);
-        BigDecimal valueInCentiMeter = new BigDecimal(value);
-        dataEntry.setValue(valueInCentiMeter.multiply(BigDecimal.TEN).intValue());
-        dataEntryRepository.save(dataEntry);
-        return dataEntry;
+        return dataEntryService.add(deviceId, measuredOn, value);
     }
 
     @GetMapping(path="/all")
-    public @ResponseBody Iterable<DataEntry> getAllDataEntries() {
-        return dataEntryRepository.findAll();
+    public @ResponseBody List<DataEntry> getAllDataEntries() {
+        return dataEntryService.retrieveAll();
     }
 
 
