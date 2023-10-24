@@ -1,6 +1,7 @@
 package com.example.sumpdata.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -47,6 +48,12 @@ public class DataEntryServiceImpl implements DataEntryService{
             dataEntryRepository.findByDeviceID(deviceID).forEach(dataEntries::add);
         }
         return dataEntries;
+    }
+
+    @Override
+    public List<DataEntry> retrieveInRange(int deviceId, LocalDateTime start, LocalDateTime end, boolean ascending) {
+        Sort sortBy = ascending ? Sort.by("measuredOn").ascending() : Sort.by("measuredOn").descending();
+        return dataEntryRepository.findByDeviceIDAndMeasuredOnBetween(deviceId, start, end, sortBy);
     }
 
     Pattern CSV_FILENAME_PATTERN = Pattern.compile("waterlevel-([0-9]{4})([0-9]{2})([0-9]{2})\\.csv");

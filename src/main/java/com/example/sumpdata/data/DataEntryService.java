@@ -11,6 +11,8 @@ public interface DataEntryService {
 
     public List<DataEntry> retrieveAll(Integer deviceID);
 
+    List<DataEntry> retrieveInRange(int deviceId, LocalDateTime start, LocalDateTime end, boolean ascending);
+
     public String processCSV(int deviceId, InputStream stream, String filename) throws IOException;
 
 }

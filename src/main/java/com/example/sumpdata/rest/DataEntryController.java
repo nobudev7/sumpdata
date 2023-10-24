@@ -28,11 +28,11 @@ public class DataEntryController {
 
     @PostMapping(path="/add")
     public @ResponseBody DataEntry addDataEntry(
-            @RequestParam Integer deviceId,
+            @RequestParam Integer deviceID,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
             @RequestParam String value
     ) {
-        return dataEntryService.add(deviceId, measuredOn, value);
+        return dataEntryService.add(deviceID, measuredOn, value);
     }
 
     @GetMapping(path="/all")
@@ -40,6 +40,17 @@ public class DataEntryController {
             @RequestParam(required = false) Integer deviceID
     ) {
         return dataEntryService.retrieveAll(deviceID);
+    }
+
+    @RequestMapping(path="/range")
+    public @ResponseBody List<DataEntry> getDataEntriesRange(
+            @RequestParam int deviceID,
+            @RequestParam LocalDateTime start,
+            @RequestParam LocalDateTime end,
+            @RequestParam(required = false, defaultValue = "true") boolean ascending
+    )
+    {
+        return dataEntryService.retrieveInRange(deviceID, start, end, ascending);
     }
 
 
