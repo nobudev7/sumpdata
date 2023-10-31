@@ -15,4 +15,5 @@ public interface DataEntryService {
 
     public String processCSV(int deviceId, InputStream stream, String filename) throws IOException;
 
+    String latest(Integer deviceID);
 }

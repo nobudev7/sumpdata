@@ -88,4 +88,15 @@ public class DataEntryServiceImpl implements DataEntryService{
         LocalDateTime measuredOn = LocalDateTime.parse(date + time, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         add(deviceId, measuredOn, depthInCM);
     }
+
+    @Override
+    public String latest(Integer deviceID) {
+        List<DataEntry> entries = dataEntryRepository.findFirstByDeviceIDOrderByMeasuredOnDesc(deviceID);
+        if (!entries.isEmpty()) {
+            DataEntry latest = entries.getFirst();
+            return latest.getMeasuredOn().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+        }
+        // TODO: Consider to implement better response for an error case
+        return "No data for device id = " + deviceID;
+    }
 }

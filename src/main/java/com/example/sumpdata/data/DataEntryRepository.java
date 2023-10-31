@@ -12,5 +12,5 @@ public interface DataEntryRepository extends JpaRepository<DataEntry, DataEntryI
     // Custom queries
     List<DataEntry> findByDeviceID(Integer deviceID);
     List<DataEntry> findByDeviceIDAndMeasuredOnBetween(Integer deviceID, LocalDateTime measuredOnStart, LocalDateTime measuredOnEnd, Sort sort);
-
+    List<DataEntry> findFirstByDeviceIDOrderByMeasuredOnDesc(Integer deviceID);
 }

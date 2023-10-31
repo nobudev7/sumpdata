@@ -35,6 +35,20 @@ public class DataEntryController {
         return dataEntryService.add(deviceID, measuredOn, value);
     }
 
+    // TODO: Make yyyy/mm/dd endpoint
+    // TODO: Properly use POST, PUT, GET, DELETE
+    // TODO: To get the latest yyyy/mm/dd, create a new endpoint like `/latest`
+    // TODO: List device ids
+
+
+    @GetMapping(path="/latest")
+    public @ResponseBody String getLatest(
+            @RequestParam(required = false) Integer deviceID
+    ) {
+        return dataEntryService.latest(deviceID);
+    }
+
+
     @GetMapping(path="/all")
     public @ResponseBody List<DataEntry> getAllDataEntries(
             @RequestParam(required = false) Integer deviceID

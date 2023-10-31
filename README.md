@@ -5,6 +5,8 @@ A Java Spring Boot app that manages and visualize sump pump data.
 ```
 $ docker volume create sumpdatavolume
 $ docker run --name sumpdatamysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=myrootpswd -v sumpdatavolume:/var/lib/mysql mysql
+# To Restart the same mysql container
+$ docker start -a sumpdatamysql  
 ```
 
 
@@ -18,6 +20,8 @@ curl http://192.168.1.169:8080/rest/add -d deviceId=1 -d measuredOn=`date "+%Y-%
 
 ## Rest API
 ### add
+### latest
+Returns the latest date in yyyy/MM/dd format for the specified device. The intention is to use the returned string as a starting point for `/get/yyyy/MM/dd` query to display the latest day data.
 ### all
 ### upload
 Upload multiple files for backfill purpose. The uploaded file name has to have suffix of `-YYYYMMDD` format to specify the date of the data entry. 
@@ -36,6 +40,7 @@ Data sample:
 2023-08-07T00:03:05,9.8
 ```
 
+### range
 
 ## License
 This software is released under [MIT License](https://github.com/ntamagawa/sumpdata/blob/main/LICENSE).
