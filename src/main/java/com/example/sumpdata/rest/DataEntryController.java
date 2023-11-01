@@ -6,19 +6,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
-@RequestMapping(path="/rest")
+@RestController
+@RequestMapping(path="/entries")
 public class DataEntryController {
 
     // TODO: How do we want to document the Rest API?
@@ -26,7 +26,36 @@ public class DataEntryController {
     @Autowired
     private DataEntryService dataEntryService;
 
-    @PostMapping(path="/add")
+    @GetMapping("/{year}/{month}/{day}")
+    public List<DataEntry> getEntriesByDate(
+            @PathVariable int year,
+            @PathVariable int month,
+            @PathVariable int day,
+            @RequestParam int device,
+            @RequestParam(required = false, defaultValue = "true") Boolean ascending
+    ) {
+        // Convert the path variables into range of LocalDateTime
+        LocalDateTime start = LocalDateTime.of(year, month, day, 0, 0,0);
+        LocalDateTime end = LocalDateTime.of(year, month, day, 23, 59,59);
+        return dataEntryService.retrieveInRange(device, start, end, ascending);
+    }
+
+    @GetMapping("/{year}/{month}")
+    public List<DataEntry> getEntriesByMonth(
+            @PathVariable int year,
+            @PathVariable int month,
+            @RequestParam(required = false) Integer device,
+            @RequestParam(required = false, defaultValue = "true") Boolean ascending
+    ) {
+        // Convert the path variables into range of LocalDateTime
+        LocalDateTime start = LocalDateTime.of(year, month, 1, 1, 0, 0, 0);
+        LocalDateTime end = LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(), 23, 59,59);
+        return dataEntryService.retrieveInRange(device, start, end, ascending);
+    }
+
+
+
+    @PostMapping(path="/")
     public @ResponseBody DataEntry addDataEntry(
             @RequestParam Integer deviceID,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
@@ -48,13 +77,6 @@ public class DataEntryController {
         return dataEntryService.latest(deviceID);
     }
 
-
-    @GetMapping(path="/all")
-    public @ResponseBody List<DataEntry> getAllDataEntries(
-            @RequestParam(required = false) Integer deviceID
-    ) {
-        return dataEntryService.retrieveAll(deviceID);
-    }
 
     @RequestMapping(path="/range")
     public @ResponseBody List<DataEntry> getDataEntriesRange(
