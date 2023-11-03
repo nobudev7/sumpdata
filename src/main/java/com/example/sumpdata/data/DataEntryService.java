@@ -6,14 +6,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DataEntryService {
-    public DataEntry add(int deviceId, LocalDateTime measuredOn, String depthInCm);
-    public DataEntry add(int deviceId, LocalDateTime measuredOn, int depthInMm);
+    DataEntry add(int deviceId, LocalDateTime measuredOn, String depthInCm);
 
-    public List<DataEntry> retrieveAll(Integer deviceID);
+    DataEntry add(int deviceId, LocalDateTime measuredOn, int depthInMm);
+
+    DataEntry add(DataEntry entry);
+
+    List<DataEntry> retrieveAll(Integer deviceID);
 
     List<DataEntry> retrieveInRange(int deviceId, LocalDateTime start, LocalDateTime end, boolean ascending);
 
-    public String processCSV(int deviceId, InputStream stream, String filename) throws IOException;
+    String processCSV(int deviceId, InputStream stream, String filename) throws IOException;
 
     String latest(Integer deviceID);
 }

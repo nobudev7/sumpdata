@@ -37,6 +37,12 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
+    public DataEntry add(DataEntry entry) {
+        // TODO: We may need a sort of validation here.
+        return dataEntryRepository.save(entry);
+    }
+
+    @Override
     public List<DataEntry> retrieveAll(Integer deviceID) {
         // TODO: The plan is to have either paged results, or upper limit in number of entries to return.
         // Also, when we provide a way to set query conditions such as oder by measured on, this will need
