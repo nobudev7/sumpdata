@@ -5,6 +5,7 @@ import com.example.sumpdata.data.DataEntryService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -23,13 +25,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @RestController
-@RequestMapping(path = "/entries")
+@RequestMapping(path = "devices/{device}/entries")
 public class DataEntryController {
 
     // TODO: How do we want to document the Rest API?
@@ -38,7 +41,7 @@ public class DataEntryController {
     private DataEntryService dataEntryService;
 
     @GetMapping("/{year}/{month}/{day}")
-    public List<DataEntry> getEntriesByDate(@PathVariable int year, @PathVariable int month, @PathVariable int day, @RequestParam int device,
+    public List<DataEntry> getEntriesByDate(@PathVariable int device, @PathVariable int year, @PathVariable int month, @PathVariable int day,
                                             @RequestParam(required = false, defaultValue = "true") Boolean ascending) {
         // Convert the path variables into range of LocalDateTime
         LocalDateTime start = LocalDateTime.of(year, month, day, 0, 0, 0);
@@ -47,7 +50,7 @@ public class DataEntryController {
     }
 
     @GetMapping("/{year}/{month}")
-    public List<DataEntry> getEntriesByMonth(@PathVariable int year, @PathVariable int month, @RequestParam(required = false) Integer device,
+    public List<DataEntry> getEntriesByMonth(@PathVariable int device, @PathVariable int year, @PathVariable int month,
                                              @RequestParam(required = false, defaultValue = "true") Boolean ascending) {
         // Convert the path variables into range of LocalDateTime
         LocalDateTime start = LocalDateTime.of(year, month, 1, 1, 0, 0, 0);
@@ -55,14 +58,24 @@ public class DataEntryController {
         return dataEntryService.retrieveInRange(device, start, end, ascending);
     }
 
+    // This is different from the above 2 get mappings as it would not return a list of DataEntry objects.
+    // This just return the latest 1 DataEntry. The intention is to use it as a starting yyyy/MM/dd value
+    // to call the /{year}/{month}/{day} endpoint above.
+    @GetMapping(path = "/")
+    public DataEntry getLatest(@PathVariable int device) {
+        Optional<DataEntry> latest = dataEntryService.latest(device);
+        return latest.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Specified device " + device + " does not have any data entries."));
+    }
 
+    // TODO: DataEntry object has deviceID in it. Consider refactoring to avoid a situation where path variable's
+    //       device id doesn't agree with one in the DataEntry.
     @PostMapping(path = "/", consumes = {APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE})
     public @ResponseBody DataEntry addDataEntry(@RequestBody DataEntry entry) {
         return dataEntryService.add(entry);
     }
 
     @PostMapping(path = "/", consumes = {TEXT_PLAIN_VALUE})
-    public @ResponseBody DataEntry addDataEntry(@RequestParam Integer deviceID,
+    public @ResponseBody DataEntry addDataEntry(@PathVariable Integer deviceID,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
                                                 @RequestParam String value) {
         return dataEntryService.add(deviceID, measuredOn, value);
@@ -73,11 +86,6 @@ public class DataEntryController {
     // TODO: List device ids
 
 
-    @GetMapping(path = "/latest")
-    public @ResponseBody String getLatest(@RequestParam(required = false) Integer deviceID) {
-        return dataEntryService.latest(deviceID);
-    }
-    
     @RequestMapping(path = "/range")
     public @ResponseBody List<DataEntry> getDataEntriesRange(@RequestParam int deviceID, @RequestParam LocalDateTime start, @RequestParam LocalDateTime end,
                                                              @RequestParam(required = false, defaultValue = "true") boolean ascending) {

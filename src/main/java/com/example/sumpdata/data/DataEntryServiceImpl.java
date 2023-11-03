@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,13 +97,12 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
-    public String latest(Integer deviceID) {
+    public Optional<DataEntry> latest(Integer deviceID) {
         List<DataEntry> entries = dataEntryRepository.findFirstByDeviceIDOrderByMeasuredOnDesc(deviceID);
         if (!entries.isEmpty()) {
-            DataEntry latest = entries.getFirst();
-            return latest.getMeasuredOn().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            return Optional.of(entries.getFirst());
         }
         // TODO: Consider to implement better response for an error case
-        return "No data for device id = " + deviceID;
+        return Optional.empty();
     }
 }
