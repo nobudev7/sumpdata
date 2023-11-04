@@ -2,10 +2,10 @@ package com.example.sumpdata.rest;
 
 import com.example.sumpdata.data.DataEntry;
 import com.example.sumpdata.data.DataEntryService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,10 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
-import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 @RestController
 @RequestMapping(path = "devices/{device}/entries")
@@ -69,42 +65,35 @@ public class DataEntryController {
 
     // TODO: DataEntry object has deviceID in it. Consider refactoring to avoid a situation where path variable's
     //       device id doesn't agree with one in the DataEntry.
-    @PostMapping(path = "/", consumes = {APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE})
+    @PostMapping(path = "/", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public @ResponseBody DataEntry addDataEntry(@RequestBody DataEntry entry) {
         return dataEntryService.add(entry);
     }
 
-    @PostMapping(path = "/", consumes = {TEXT_PLAIN_VALUE})
-    public @ResponseBody DataEntry addDataEntry(@PathVariable Integer deviceID,
+    @PostMapping(path = "/", consumes = {MediaType.TEXT_PLAIN_VALUE})
+    public @ResponseBody DataEntry addDataEntry(@PathVariable Integer device,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
                                                 @RequestParam String value) {
-        return dataEntryService.add(deviceID, measuredOn, value);
+        return dataEntryService.add(device, measuredOn, value);
     }
 
-    // TODO: Properly use POST, PUT, GET, DELETE
-    // TODO: To get the latest yyyy/mm/dd, create a new endpoint like `/latest`
-    // TODO: List device ids
-
-
-    @RequestMapping(path = "/range")
-    public @ResponseBody List<DataEntry> getDataEntriesRange(@RequestParam int deviceID, @RequestParam LocalDateTime start, @RequestParam LocalDateTime end,
-                                                             @RequestParam(required = false, defaultValue = "true") boolean ascending) {
-        return dataEntryService.retrieveInRange(deviceID, start, end, ascending);
-    }
-
-
-    @PostMapping(path = "/upload")
-    public ResponseEntity<Map<String, Object>> uploadDataEntryFile(@RequestParam("files") MultipartFile[] files, HttpServletRequest request) {
+    /***
+     * This endpoint takes multipart file upload.
+     * @param device device id
+     * @param files file names in waterlevel-yyyyMMdd.csv format. Multiple files are accepted.
+     * @return Status message
+     */
+    @PostMapping(path = "/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Map<String, Object>> uploadDataEntryFile(@PathVariable Integer device,
+            @RequestParam("files") MultipartFile[] files) {
         Map<String, Object> uploadDetails = new HashMap<>();
         uploadDetails.put("numFiles", String.valueOf(files.length));
-        // Consider proper error handling in missing device id, etc.
-        int deviceId = Integer.parseInt(request.getHeader("SumpDeviceId"));
         List<Map> statusList = new ArrayList<>();
         for (int i = 0; i < files.length; i++) {
             Map<String, String> fileStatusMap = new HashMap<>();
             fileStatusMap.put("fileName", files[i].getOriginalFilename());
             try {
-                String status = dataEntryService.processCSV(deviceId, files[i].getInputStream(), files[i].getOriginalFilename());
+                String status = dataEntryService.processCSV(device, files[i].getInputStream(), files[i].getOriginalFilename());
                 // TODO: Consider better status reporting for each file
                 fileStatusMap.put("success", status);
             } catch (IOException e) {
