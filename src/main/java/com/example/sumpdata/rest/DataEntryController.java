@@ -57,7 +57,7 @@ public class DataEntryController {
     // This is different from the above 2 get mappings as it would not return a list of DataEntry objects.
     // This just return the latest 1 DataEntry. The intention is to use it as a starting yyyy/MM/dd value
     // to call the /{year}/{month}/{day} endpoint above.
-    @GetMapping(path = "/")
+    @GetMapping(path = "")
     public DataEntry getLatest(@PathVariable int device) {
         Optional<DataEntry> latest = dataEntryService.latest(device);
         return latest.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Specified device " + device + " does not have any data entries."));
@@ -65,12 +65,12 @@ public class DataEntryController {
 
     // TODO: DataEntry object has deviceID in it. Consider refactoring to avoid a situation where path variable's
     //       device id doesn't agree with one in the DataEntry.
-    @PostMapping(path = "/", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    @PostMapping(path = "", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public @ResponseBody DataEntry addDataEntry(@RequestBody DataEntry entry) {
         return dataEntryService.add(entry);
     }
 
-    @PostMapping(path = "/", consumes = {MediaType.TEXT_PLAIN_VALUE})
+    @PostMapping(path = "", consumes = {MediaType.TEXT_PLAIN_VALUE})
     public @ResponseBody DataEntry addDataEntry(@PathVariable Integer device,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
                                                 @RequestParam String value) {
@@ -83,7 +83,7 @@ public class DataEntryController {
      * @param files file names in waterlevel-yyyyMMdd.csv format. Multiple files are accepted.
      * @return Status message
      */
-    @PostMapping(path = "/", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Map<String, Object>> uploadDataEntryFile(@PathVariable Integer device,
             @RequestParam("files") MultipartFile[] files) {
         Map<String, Object> uploadDetails = new HashMap<>();

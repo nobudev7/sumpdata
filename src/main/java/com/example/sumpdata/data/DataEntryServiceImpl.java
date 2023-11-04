@@ -105,4 +105,15 @@ public class DataEntryServiceImpl implements DataEntryService{
         // TODO: Consider to implement better response for an error case
         return Optional.empty();
     }
+
+    @Override
+    public List<String> available(Integer device, Integer year, Integer month) {
+        if (null != month) {
+            return dataEntryRepository.availableDateInMonth(device, year, month).stream().map(dt -> dt.replace('-', '/')).toList();
+        } else if (null != year){
+            return dataEntryRepository.availableMonthInYear(device, year).stream().map(mo -> "" + year + "/" + mo).toList();
+        } else {
+            return dataEntryRepository.availableMonthInYear(device);
+        }
+    }
 }
