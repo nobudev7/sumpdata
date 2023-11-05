@@ -47,7 +47,7 @@ public class DataEntryController {
 
     @GetMapping("/{year}/{month}")
     public List<DataEntry> getEntriesByMonth(@PathVariable int device, @PathVariable int year, @PathVariable int month,
-                                             @RequestParam(required = false, defaultValue = "true") Boolean ascending) {
+                                             @RequestParam(required = false, defaultValue = "true") boolean ascending) {
         // Convert the path variables into range of LocalDateTime
         LocalDateTime start = LocalDateTime.of(year, month, 1, 1, 0, 0, 0);
         LocalDateTime end = LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(), 23, 59, 59);
@@ -58,8 +58,8 @@ public class DataEntryController {
     // This just return the latest 1 DataEntry. The intention is to use it as a starting yyyy/MM/dd value
     // to call the /{year}/{month}/{day} endpoint above.
     @GetMapping(path = "")
-    public DataEntry getLatest(@PathVariable int device) {
-        Optional<DataEntry> latest = dataEntryService.latest(device);
+    public DataEntry getLatest(@PathVariable int device, @RequestParam(required = false, defaultValue = "false") boolean ascending) {
+        Optional<DataEntry> latest = dataEntryService.getEntry(device, ascending);
         return latest.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Specified device " + device + " does not have any data entries."));
     }
 

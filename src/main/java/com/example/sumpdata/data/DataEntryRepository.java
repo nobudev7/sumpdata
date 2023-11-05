@@ -14,6 +14,7 @@ public interface DataEntryRepository extends JpaRepository<DataEntry, DataEntryI
     List<DataEntry> findByDeviceID(Integer deviceID);
     List<DataEntry> findByDeviceIDAndMeasuredOnBetween(Integer deviceID, LocalDateTime measuredOnStart, LocalDateTime measuredOnEnd, Sort sort);
     List<DataEntry> findFirstByDeviceIDOrderByMeasuredOnDesc(Integer deviceID);
+    List<DataEntry> findFirstByDeviceIDOrderByMeasuredOnAsc(Integer deviceID);
 
     @Query("SELECT distinct(date(de.measuredOn)) dt from DataEntry as de where de.deviceID=?1 and year(de.measuredOn) = ?2 and month(de.measuredOn) = ?3  order by date(de.measuredOn)")
     List<String> availableDateInMonth(Integer deviceID, Integer year, Integer month);

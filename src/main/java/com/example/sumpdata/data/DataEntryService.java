@@ -19,7 +19,7 @@ public interface DataEntryService {
 
     String processCSV(int deviceId, InputStream stream, String filename) throws IOException;
 
-    Optional<DataEntry> latest(Integer deviceID);
+    Optional<DataEntry> getEntry(Integer deviceID, boolean ascending);
 
     List<String> available(Integer device, Integer year, Integer month);
 }

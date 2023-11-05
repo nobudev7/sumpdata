@@ -97,8 +97,13 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
-    public Optional<DataEntry> latest(Integer deviceID) {
-        List<DataEntry> entries = dataEntryRepository.findFirstByDeviceIDOrderByMeasuredOnDesc(deviceID);
+    public Optional<DataEntry> getEntry(Integer deviceID, boolean ascending) {
+        List<DataEntry> entries;
+        if (ascending) {
+            entries = dataEntryRepository.findFirstByDeviceIDOrderByMeasuredOnAsc(deviceID);
+        } else {
+            entries = dataEntryRepository.findFirstByDeviceIDOrderByMeasuredOnDesc(deviceID);
+        }
         if (!entries.isEmpty()) {
             return Optional.of(entries.getFirst());
         }
