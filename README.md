@@ -6,7 +6,7 @@ A showcase of a Java Spring Boot app that manages IoT device data via REST API. 
 
 ![Web Frontend Sample](assets/WebFrontendSample.png)
 
-`?` What is a sump Pump? [Sump pump](https://en.wikipedia.org/wiki/Sump_pump) (Wikipadia)
+`?` What is a sump pump? [Sump pump](https://en.wikipedia.org/wiki/Sump_pump) (Wikipadia)
 
 ## Motivation
 I wanted to demonstrate Spring Boot capabilities that can be used for a scalable web server. I chose the water level data from [Raspi-Sump](https://www.linuxnorth.org/raspi-sump/) - _real data_ from my house's sump. Raspi-Sump has a built-in web server, and the motivation is to build a service that supports thousands of such data sources and helps visualize.
@@ -24,22 +24,6 @@ I wanted to demonstrate Spring Boot capabilities that can be used for a scalable
 ## Data Visualization
 Using the REST API, any frontend framework would work to visualize the water level data. As I'm a backend-focused developer, the visualization is done using [Streamlit](https://streamlit.io), an easy-to-use chart framework. The project can be found in [my SumpChart repo](https://github.com/ntamagawa/sumpchart).
 
-## Dev Environment (To be moved to DEV.to)
-```
-$ docker volume create sumpdatavolume
-$ docker run --name sumpdatamysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=myrootpswd -v sumpdatavolume:/var/lib/mysql mysql
-# To Restart the same mysql container
-$ docker start -a sumpdatamysql  
-```
-
-## Raspi Sump (To be moved to DEV.to)
-
-The following command will add the latest sump data entry to the server.
-The intention is to run this every minute to keep updating the record.
-```
-curl http://192.168.1.169:8080/rest/add -d deviceId=1 -d measuredOn=`date "+%Y-%m-%d"`T`cat waterlevel-\`date "+%Y%m%d"\`.csv  |tail -1|cut -d ',' -f 1` -d value=`cat waterlevel-\`date "+%Y%m%d"\`.csv |tail -1 |cut -d ',' -f 2`
-```
-
 ## REST API
 The API supports 2 resources, `entries` and `devices`. `entries` endpoint is to operate data entries from Raspi-Sump. `devices` endpoint supports `list` operation to obtain available data entries for a device.
 
@@ -48,23 +32,23 @@ Use `POST` with a single JSON data entry (`application/json`). The endpoint also
 
 JSON example: 
 ```shell
-curl -X POST 'http://192.168.1.169:8080/devices/1/entries' \
+curl -X POST 'http://localhost:8080/devices/1/entries' \
 -d '{"deviceID":1,"measuredOn":"2023-10-23T16:37:06","value":122}' \
 -H 'Content-Type: application/json' 
 ```
 
 Query Param example:
 ```shell
-curl -X POST 'http://192.168.1.169:8080/devices/2/entries?measuredOn=2023-10-24T16:37:06&value=12.2'\
+curl -X POST 'http://localhost:8080/devices/1/entries?measuredOn=2023-10-24T16:37:06&value=12.2'\
  -H 'Content-Type: text/plain'
 ```
 
 ### Bulk Upload
 To upload csv file(s), use `POST` request to the device's `entries` endpoint. This bulk operation can be used for a back-fill purpose. The uploaded file name has to have a suffix of `-YYYYMMDD` format to specify the date of the data entry, and each line in the file should contain `HH:MM:SS,value` format, where the value is a decimal (in cm) for the depth of the water level. This filename and format convention are standard for Raspi-Sump.
 ```shell
-curl 'http://192.168.1.169:8080/devices/1/entries' --X POST \
--F files=@/waterlevel-20230801.csv \
--F files=@/waterlevel-20230802.csv
+curl 'http://localhost:8080/devices/1/entries' --X POST \
+-F files=@waterlevel-20230801.csv \
+-F files=@waterlevel-20230802.csv
 ```
 Data sample:
 ```
@@ -73,6 +57,9 @@ Data sample:
 2023-08-07T00:02:05,9.7
 2023-08-07T00:03:05,9.8
 ```
+
+## Development and Operations
+For detailed development environment set up steps, and tips for the actual operations of the server environment, see [Development and Operations](DEVOPS.md) 
 
 ## TODOs
 * REST API documentation - considering Swagger
