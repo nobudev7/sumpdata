@@ -2,9 +2,9 @@ package com.example.sumpdata.rest;
 
 import com.example.sumpdata.data.DataEntry;
 import com.example.sumpdata.data.DataEntryService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -36,6 +35,7 @@ public class DataEntryController {
     @Autowired
     private DataEntryService dataEntryService;
 
+    @Operation(summary = "Returns data entries for the specified date.")
     @GetMapping("/{year}/{month}/{day}")
     public List<DataEntry> getEntriesByDate(@PathVariable int device, @PathVariable int year, @PathVariable int month, @PathVariable int day,
                                             @RequestParam(required = false, defaultValue = "true") Boolean ascending) {
@@ -45,6 +45,8 @@ public class DataEntryController {
         return dataEntryService.retrieveInRange(device, start, end, ascending);
     }
 
+    @Operation(summary = "Returns all data entries for the specified month.", description = "This could be a time consuming call as it returns all data entries for a month. " +
+            "The normal use case assumes one data entry per minute, that means this endpoint would return 60 x 24 x 30 = 43200 data entries. Use with caution.")
     @GetMapping("/{year}/{month}")
     public List<DataEntry> getEntriesByMonth(@PathVariable int device, @PathVariable int year, @PathVariable int month,
                                              @RequestParam(required = false, defaultValue = "true") boolean ascending) {
@@ -54,22 +56,15 @@ public class DataEntryController {
         return dataEntryService.retrieveInRange(device, start, end, ascending);
     }
 
-    // This is different from the above 2 get mappings as it would not return a list of DataEntry objects.
-    // This just return the latest 1 DataEntry. The intention is to use it as a starting yyyy/MM/dd value
-    // to call the /{year}/{month}/{day} endpoint above.
-    @GetMapping(path = "")
-    public DataEntry getLatest(@PathVariable int device, @RequestParam(required = false, defaultValue = "false") boolean ascending) {
-        Optional<DataEntry> latest = dataEntryService.getEntry(device, ascending);
-        return latest.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Specified device " + device + " does not have any data entries."));
-    }
-
     // TODO: DataEntry object has deviceID in it. Consider refactoring to avoid a situation where path variable's
     //       device id doesn't agree with one in the DataEntry.
+    @Operation(summary = "Upload one data entry as a JSON object.")
     @PostMapping(path = "", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public @ResponseBody DataEntry addDataEntry(@RequestBody DataEntry entry) {
+    public @ResponseBody DataEntry addDataEntryJson(@RequestBody DataEntry entry) {
         return dataEntryService.add(entry);
     }
 
+    @Operation(summary = "Upload one data entry with query parameters", operationId = "addDataEntry", method = "addDataEntry")
     @PostMapping(path = "", consumes = {MediaType.TEXT_PLAIN_VALUE})
     public @ResponseBody DataEntry addDataEntry(@PathVariable Integer device,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,

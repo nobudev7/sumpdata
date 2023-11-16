@@ -1,5 +1,6 @@
 package com.example.sumpdata.data;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -15,13 +16,17 @@ import java.time.LocalDateTime;
  *        precision of the depth is not that great (it doesn't have mm precision, probably a few mm at most)
  */
 @Entity
+@Schema(description = "Date model for water level data")
 @IdClass(DataEntryId.class)
 public class DataEntry {
+    @Schema(description = "Device ID", example = "1")
     @Id
     private Integer deviceID;
+    @Schema(description = "Local date time for the value (water level)", type = "string", example = "2023-11-14T02:31:27")
     @Id
     private LocalDateTime measuredOn;
 
+    @Schema(description = "Water level measurement in mm.", example = "127")
     private Integer value;
 
     public Integer getDeviceID() {
