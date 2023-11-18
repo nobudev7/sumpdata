@@ -1,22 +1,15 @@
 package com.example.sumpdata;
 
-import com.example.sumpdata.data.DataEntryService;
 import com.example.sumpdata.data.DataEntryServiceImpl;
 import com.example.sumpdata.rest.ListController;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
@@ -30,10 +23,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+// https://www.javadevjournal.com/spring-boot/spring-rest-docs/
+
+@RunWith(SpringRunner.class)
 @WebMvcTest(ListController.class)
-@ExtendWith(MockitoExtension.class)
+@AutoConfigureRestDocs(outputDir = "target/snippets")
 public class ListControllerTest {
 
+    @Autowired
     private MockMvc mockMvc;
 
     @MockBean
@@ -42,10 +39,6 @@ public class ListControllerTest {
     @Autowired
     private WebApplicationContext context;
 
-    @BeforeEach
-    public void setUp() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
-    }
 
     @Test
     public void shouldReturnListOfYears() throws Exception {
@@ -55,6 +48,7 @@ public class ListControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json("[\"2023\"]"))
+                .andDo(document("list"))
         ;
 //                .andDo(document("list",
 //                        pathParameters(parameterWithName("id").description("Device id. Required"))));
