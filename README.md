@@ -27,12 +27,20 @@ Using the REST API, any frontend framework would work to visualize the water lev
 ## REST API
 The API supports 2 resources, `entries` and `devices`. `entries` endpoint is to operate data entries from Raspi-Sump. `devices` endpoint supports `list` operation to obtain available data entries for a device.
 
+
+| `!` Note                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Due to the Swagger limitation, I decided to separate the `devices/{device}/entries` endpoint to add data entries with different paths. The same (one) endpoint path with different request media types is supported by Spring, but Swagger can't create separate section for each media type request for the same path, and commingle all request parameters. See [v0.1 ](https://github.com/ntamagawa/sumpdata/blob/v0.1.0/src/main/java/com/example/sumpdata/rest/DataEntryController.java) implementation of `DataEntryController` for a way to use the same endpoint for different media types. Semantically, that works better as path represents a resource, HTTP method is a verb, and media type determines the format for the data to be transmitted. |
+
+
+
+
 ### Add a single data entry
 Use `POST` with a single JSON data entry (`application/json`). The endpoint also supports `text/plain` with query parameters, so the client doesn't need to build a JSON object.
 
 JSON example: 
 ```shell
-curl -X POST 'http://localhost:8080/devices/1/entries' \
+curl -X POST 'http://localhost:8080/devices/1/entries/json' \
 -d '{"deviceID":1,"measuredOn":"2023-10-23T16:37:06","value":122}' \
 -H 'Content-Type: application/json' 
 ```
@@ -46,7 +54,7 @@ curl -X POST 'http://localhost:8080/devices/1/entries?measuredOn=2023-10-24T16:3
 ### Bulk Upload
 To upload csv file(s), use `POST` request to the device's `entries` endpoint. This bulk operation can be used for a back-fill purpose. The uploaded file name has to have a suffix of `-YYYYMMDD` format to specify the date of the data entry, and each line in the file should contain `HH:MM:SS,value` format, where the value is a decimal (in cm) for the depth of the water level. This filename and format convention are standard for Raspi-Sump.
 ```shell
-curl 'http://localhost:8080/devices/1/entries' --X POST \
+curl 'http://localhost:8080/devices/1/entries/files' --X POST \
 -F files=@waterlevel-20230801.csv \
 -F files=@waterlevel-20230802.csv
 ```
@@ -61,8 +69,10 @@ Data sample:
 ## Development and Operations
 For detailed development environment set up steps, and tips for the actual operations of the server environment, see [Development and Operations](DEVOPS.md) 
 
+## Limitation
+Currently, this application support **local date time** as the timestamp. This is because Raspi-Sump keeps the time component as local time in its CSV files. Thus, on the day time changes, it would skip 1 hour or have 1 hour repeated data. To properly account for the time, especially on the day time changes, it should support UTC, time zones, or offset formats. This also requires a change on the Raspi-Sump side.
+
 ## TODOs
-* REST API documentation - considering Swagger
 * Security
   * Authentication access
 * Improve `devices` endpoint
