@@ -25,6 +25,9 @@ I wanted to demonstrate Spring Boot capabilities that can be used for a scalable
 Using the REST API, any frontend framework would work to visualize the water level data. As I'm a backend-focused developer, the visualization is done using [Streamlit](https://streamlit.io), an easy-to-use chart framework. The project can be found in [my SumpChart repo](https://github.com/ntamagawa/sumpchart).
 
 ## REST API
+
+:green_book: Full API document is available on [Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/ntamagawa/sumpdata/main/src/api/sump_data_rest_api.yaml).
+
 The API supports 2 resources, `entries` and `devices`. `entries` endpoint is to operate data entries from Raspi-Sump. `devices` endpoint supports `list` operation to obtain available data entries for a device.
 
 

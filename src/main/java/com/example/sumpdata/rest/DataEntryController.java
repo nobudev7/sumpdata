@@ -57,11 +57,7 @@ public class DataEntryController {
 
 
     @Operation(summary = "Add one data entry with query parameters",
-            operationId = "addDataEntryText",
-                description = "curl command example:\n" +
-                        "```\n" +
-                        "curl -X POST 'http://localhost:8080/devices/1/entries?measuredOn=2023-11-14T02:31:27&value=12.7' -H 'Content-Type: text/plain'\n" +
-                        "```")
+            description = "Add or update a single data entry for the specified device.")
     @PostMapping(path = "")
     public @ResponseBody DataEntry addDataEntry(@PathVariable Integer device,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
@@ -71,7 +67,8 @@ public class DataEntryController {
 
     // TODO: DataEntry object has deviceID in it. Consider refactoring to avoid a situation where path variable's
     //       device id doesn't agree with one in the DataEntry.
-    @Operation(summary = "Add one data entry as a JSON object.", operationId = "addDataEntryJson"
+    @Operation(summary = "Add one data entry as a JSON object.",
+            description = "Add or update a single data entry for the specified device with the specified JSON."
                     )
     @PostMapping(path = "json", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public @ResponseBody DataEntry addDataEntryJson(@PathVariable Integer device, @RequestBody DataEntry entry) {
@@ -79,14 +76,12 @@ public class DataEntryController {
     }
 
     @Operation(summary = "Upload data entries in bulk from file(s)",
-            operationId = "uploadDataEntryFile",
-            method = "uploadDataEntryFile",
             description = "This endpoint takes multipart file upload. The filename has to be RaspiSump CSV convention, " +
                     "which is waterlevel-yyyyMMdd.csv format. \n\n" +
                     "Note: Swagger UI \"Try it out\" doesn't work with this endpoint as it can't properly set MultipartFile compatible request params.\n" +
-                    "See the following sample curl command to try it out.\n" +
+                    "See the following sample curl command to try it out. This sample uploads 2 files at once.\n" +
                     "```shell\n" +
-                    "curl 'http://localhost:8080/devices/2/entries/files' -X POST -F files=@waterlevel-20230805.csv\n" +
+                    "curl 'http://localhost:8080/devices/2/entries/files' -X POST -F files=@waterlevel-20230805.csv -F files=@waterlevel-20230806.csv\n" +
                     "```")
     @PostMapping(path = "files", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Map<String, Object>> uploadDataEntryFile(@PathVariable Integer device,

@@ -7,24 +7,18 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/license/mit/
-  version: v0.1.0
+  version: 0.1.0
 servers:
 - url: http://localhost:8080
   description: local server
-- url: https://someserver.co.jp/api
-  description: public server
 paths:
   /devices/{device}/entries:
     post:
       tags:
       - data-entry-controller
       summary: Add one data entry with query parameters
-      description: |-
-        curl command example:
-        ```
-        curl -X POST 'http://localhost:8080/devices/1/entries?measuredOn=2023-11-14T02:31:27&value=12.7' -H 'Content-Type: text/plain'
-        ```
-      operationId: addDataEntryText
+      description: Add or update a single data entry for the specified device.
+      operationId: addDataEntry
       parameters:
       - name: device
         in: path
@@ -55,6 +49,8 @@ paths:
       tags:
       - data-entry-controller
       summary: Add one data entry as a JSON object.
+      description: Add or update a single data entry for the specified device with
+        the specified JSON.
       operationId: addDataEntryJson
       parameters:
       - name: device
@@ -88,8 +84,9 @@ paths:
         \ be RaspiSump CSV convention, which is waterlevel-yyyyMMdd.csv format. \n\
         \nNote: Swagger UI \"Try it out\" doesn't work with this endpoint as it can't\
         \ properly set MultipartFile compatible request params.\nSee the following\
-        \ sample curl command to try it out.\n```shell\ncurl 'http://localhost:8080/devices/2/entries/files'\
-        \ -X POST -F files=@waterlevel-20230805.csv\n```"
+        \ sample curl command to try it out. This sample uploads 2 files at once.\n\
+        ```shell\ncurl 'http://localhost:8080/devices/2/entries/files' -X POST -F\
+        \ files=@waterlevel-20230805.csv -F files=@waterlevel-20230806.csv\n```"
       operationId: uploadDataEntryFile
       parameters:
       - name: device

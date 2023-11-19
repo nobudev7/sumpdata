@@ -30,7 +30,7 @@ By default, Raspi-Sump measures the water level per minute. To upload data as it
 
 To backfill the past data, use POST with multipart file upload. For example, to upload a month worth of CSV files, run the following command.
 ```shell
-$ for F in $(ls waterlevel-202301*); do  curl 'http://192.168.1.169:8080/devices/1/entries' -X POST -F files=@$F; done
+$ for F in $(ls waterlevel-202301*); do  curl 'http://192.168.1.169:8080/devices/1/entries/files' -X POST -F files=@$F; done
 ```
 
 
