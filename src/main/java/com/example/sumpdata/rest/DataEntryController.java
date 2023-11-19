@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "devices/{device}/entries")
@@ -56,29 +55,40 @@ public class DataEntryController {
         return dataEntryService.retrieveInRange(device, start, end, ascending);
     }
 
-    // TODO: DataEntry object has deviceID in it. Consider refactoring to avoid a situation where path variable's
-    //       device id doesn't agree with one in the DataEntry.
-    @Operation(summary = "Upload one data entry as a JSON object.")
-    @PostMapping(path = "", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public @ResponseBody DataEntry addDataEntryJson(@RequestBody DataEntry entry) {
-        return dataEntryService.add(entry);
-    }
 
-    @Operation(summary = "Upload one data entry with query parameters", operationId = "addDataEntry", method = "addDataEntry")
-    @PostMapping(path = "", consumes = {MediaType.TEXT_PLAIN_VALUE})
+    @Operation(summary = "Add one data entry with query parameters",
+            operationId = "addDataEntryText",
+                description = "curl command example:\n" +
+                        "```\n" +
+                        "curl -X POST 'http://localhost:8080/devices/1/entries?measuredOn=2023-11-14T02:31:27&value=12.7' -H 'Content-Type: text/plain'\n" +
+                        "```")
+    @PostMapping(path = "")
     public @ResponseBody DataEntry addDataEntry(@PathVariable Integer device,
                                                 @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime measuredOn,
                                                 @RequestParam String value) {
         return dataEntryService.add(device, measuredOn, value);
     }
 
-    /***
-     * This endpoint takes multipart file upload.
-     * @param device device id
-     * @param files file names in waterlevel-yyyyMMdd.csv format. Multiple files are accepted.
-     * @return Status message
-     */
-    @PostMapping(path = "", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    // TODO: DataEntry object has deviceID in it. Consider refactoring to avoid a situation where path variable's
+    //       device id doesn't agree with one in the DataEntry.
+    @Operation(summary = "Add one data entry as a JSON object.", operationId = "addDataEntryJson"
+                    )
+    @PostMapping(path = "json", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public @ResponseBody DataEntry addDataEntryJson(@PathVariable Integer device, @RequestBody DataEntry entry) {
+        return dataEntryService.add(entry);
+    }
+
+    @Operation(summary = "Upload data entries in bulk from file(s)",
+            operationId = "uploadDataEntryFile",
+            method = "uploadDataEntryFile",
+            description = "This endpoint takes multipart file upload. The filename has to be RaspiSump CSV convention, " +
+                    "which is waterlevel-yyyyMMdd.csv format. \n\n" +
+                    "Note: Swagger UI \"Try it out\" doesn't work with this endpoint as it can't properly set MultipartFile compatible request params.\n" +
+                    "See the following sample curl command to try it out.\n" +
+                    "```shell\n" +
+                    "curl 'http://localhost:8080/devices/2/entries/files' -X POST -F files=@waterlevel-20230805.csv\n" +
+                    "```")
+    @PostMapping(path = "files", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<Map<String, Object>> uploadDataEntryFile(@PathVariable Integer device,
             @RequestParam("files") MultipartFile[] files) {
         Map<String, Object> uploadDetails = new HashMap<>();
