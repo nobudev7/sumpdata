@@ -1,0 +1,316 @@
+openapi: 3.0.1
+info:
+  title: REST API Server for IoT - Sump Water Level Application
+  description: "A showcase of a Java Spring Boot app that manages IoT device data\
+    \ via REST API. As a real-world application, this project is intended to collect\
+    \ water level data from Raspi-Sump - a water level monitor using a Raspberry Pi."
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+  version: v0.1.0
+servers:
+- url: http://localhost:8080
+  description: local server
+- url: https://someserver.co.jp/api
+  description: public server
+paths:
+  /devices/{device}/entries:
+    post:
+      tags:
+      - data-entry-controller
+      summary: Add one data entry with query parameters
+      description: |-
+        curl command example:
+        ```
+        curl -X POST 'http://localhost:8080/devices/1/entries?measuredOn=2023-11-14T02:31:27&value=12.7' -H 'Content-Type: text/plain'
+        ```
+      operationId: addDataEntryText
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: measuredOn
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date-time
+      - name: value
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DataEntry'
+  /devices/{device}/entries/json:
+    post:
+      tags:
+      - data-entry-controller
+      summary: Add one data entry as a JSON object.
+      operationId: addDataEntryJson
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataEntry'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/DataEntry'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DataEntry'
+  /devices/{device}/entries/files:
+    post:
+      tags:
+      - data-entry-controller
+      summary: Upload data entries in bulk from file(s)
+      description: "This endpoint takes multipart file upload. The filename has to\
+        \ be RaspiSump CSV convention, which is waterlevel-yyyyMMdd.csv format. \n\
+        \nNote: Swagger UI \"Try it out\" doesn't work with this endpoint as it can't\
+        \ properly set MultipartFile compatible request params.\nSee the following\
+        \ sample curl command to try it out.\n```shell\ncurl 'http://localhost:8080/devices/2/entries/files'\
+        \ -X POST -F files=@waterlevel-20230805.csv\n```"
+      operationId: uploadDataEntryFile
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: files
+        in: query
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /devices/{device}/list:
+    get:
+      tags:
+      - list-controller
+      summary: List of years that data is available
+      description: Returns list of years.
+      operationId: getListAvailableDayOfMonth
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /devices/{device}/list/{year}:
+    get:
+      tags:
+      - list-controller
+      summary: List year/month that data is available
+      description: Returns list of year/month that data is available for the specified
+        year.
+      operationId: getListAvailableDayOfMonth_1
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: year
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /devices/{device}/list/{year}/{month}:
+    get:
+      tags:
+      - list-controller
+      summary: List available year/month/date
+      description: Returns list of year/month/date that data is available for the
+        specified year and month.
+      operationId: getListAvailableDayOfMonth_2
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: year
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  type: string
+  /devices/{device}/entries/{year}/{month}:
+    get:
+      tags:
+      - data-entry-controller
+      summary: Returns all data entries for the specified month.
+      description: "This could be a time consuming call as it returns all data entries\
+        \ for a month. The normal use case assumes one data entry per minute, that\
+        \ means this endpoint would return 60 x 24 x 30 = 43200 data entries. Use\
+        \ with caution."
+      operationId: getEntriesByMonth
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: year
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: ascending
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataEntry'
+  /devices/{device}/entries/{year}/{month}/{day}:
+    get:
+      tags:
+      - data-entry-controller
+      summary: Returns data entries for the specified date.
+      operationId: getEntriesByDate
+      parameters:
+      - name: device
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: year
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: month
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: day
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: ascending
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataEntry'
+components:
+  schemas:
+    DataEntry:
+      type: object
+      properties:
+        deviceID:
+          type: integer
+          description: Device ID
+          format: int32
+          example: 1
+        measuredOn:
+          type: string
+          description: Local date time for the value (water level)
+          example: 2023-11-14T02:31:27
+        value:
+          type: integer
+          description: Water level measurement in mm.
+          format: int32
+          example: 127
+      description: Date model for water level data
