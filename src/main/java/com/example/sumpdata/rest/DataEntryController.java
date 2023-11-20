@@ -4,6 +4,7 @@ import com.example.sumpdata.data.DataEntry;
 import com.example.sumpdata.data.DataEntryService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class DataEntryController {
 
     @Operation(summary = "Returns data entries for the specified date.")
     @GetMapping("/{year}/{month}/{day}")
+    @Cacheable(value = "DataEntryControllerCache")
     public List<DataEntry> getEntriesByDate(@PathVariable int device, @PathVariable int year, @PathVariable int month, @PathVariable int day,
                                             @RequestParam(required = false, defaultValue = "true") Boolean ascending) {
         // Convert the path variables into range of LocalDateTime
@@ -47,6 +49,7 @@ public class DataEntryController {
     @Operation(summary = "Returns all data entries for the specified month.", description = "This could be a time consuming call as it returns all data entries for a month. " +
             "The normal use case assumes one data entry per minute, that means this endpoint would return 60 x 24 x 30 = 43200 data entries. Use with caution.")
     @GetMapping("/{year}/{month}")
+    @Cacheable(value = "DataEntryControllerCache")
     public List<DataEntry> getEntriesByMonth(@PathVariable int device, @PathVariable int year, @PathVariable int month,
                                              @RequestParam(required = false, defaultValue = "true") boolean ascending) {
         // Convert the path variables into range of LocalDateTime
