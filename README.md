@@ -16,9 +16,11 @@ I wanted to demonstrate Spring Boot capabilities that can be used for a scalable
   * One API call per data point. This will work nicely with Raspi-Sump as it generates one water level data point per minute. 
 * Bulk upload of data
   * Raspi-Sump creates a CSV file per day. Bulk upload feature can be used to back-fill data
+* Read operation can be cached : Technology used : Caffeine cache, Redis
+  * Can be configured by `spring.cache.type`
+
 * Scalable options (To be implemented)
   * Asynchronous bulk upload operation - CSV files can be uploaded but the client doesn't need to wait for them to be processed. Technology used : Kafka
-  * Read operation can be cached : Technology used : Caffeine cache, Redis
   * Read-only database replica support.
 
 ## Data Visualization
