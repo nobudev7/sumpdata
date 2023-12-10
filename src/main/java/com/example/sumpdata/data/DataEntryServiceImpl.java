@@ -1,6 +1,8 @@
 package com.example.sumpdata.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@CacheConfig(cacheNames = {"dataaccess"}, cacheManager = "redisCacheManager")
 public class DataEntryServiceImpl implements DataEntryService{
     @Autowired
     private DataEntryRepository dataEntryRepository;
@@ -42,6 +45,7 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
+    @Cacheable
     public List<DataEntry> retrieveInRange(int deviceId, LocalDateTime start, LocalDateTime end, boolean ascending) {
         Sort sortBy = ascending ? Sort.by("measuredOn").ascending() : Sort.by("measuredOn").descending();
         return dataEntryRepository.findByDeviceIDAndMeasuredOnBetween(deviceId, start, end, sortBy);
@@ -81,6 +85,7 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
+    @Cacheable
     public List<String> listAvailability(Integer device, Integer year, Integer month) {
         if (null != month) {
             return dataEntryRepository.availableDateInMonth(device, year, month).stream().map(dt -> dt.replace('-', '/')).toList();
