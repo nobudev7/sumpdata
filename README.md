@@ -21,7 +21,7 @@ I wanted to demonstrate Spring Boot capabilities that can be used for a scalable
   * Redis is used for data entry service to reduce the volume of database access. 
   * Both of the cache can be enabled/disabled via properties.
   * Some basic cache setting like TTL can be configured via properties. 
-
+  * For details, refer to [Caching](CACHING.md) .
 * Scalable options (To be implemented)
   * Asynchronous bulk upload operation - CSV files can be uploaded but the client doesn't need to wait for them to be processed. Technology used : Kafka
   * Read-only database replica support.
