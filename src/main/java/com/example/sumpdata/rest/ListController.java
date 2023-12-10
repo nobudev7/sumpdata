@@ -22,21 +22,21 @@ public class ListController {
     @GetMapping(value = "")
     @Cacheable(value = "ListControllerCache")
     public List<String> getListAvailableDayOfMonth(@PathVariable Integer device) {
-        return dataEntryService.available(device, null, null);
+        return dataEntryService.listAvailability(device, null, null);
     }
 
     @Operation(summary = "List year/month that data is available", description = "Returns list of year/month that data is available for the specified year.")
     @GetMapping(value = "/{year}")
     @Cacheable(value = "ListControllerCache")
     public List<String> getListAvailableDayOfMonth(@PathVariable Integer device, @PathVariable Integer year) {
-        return dataEntryService.available(device, year, null);
+        return dataEntryService.listAvailability(device, year, null);
     }
 
     @Operation(summary = "List available year/month/date", description = "Returns list of year/month/date that data is available for the specified year and month.")
     @GetMapping(value = "/{year}/{month}")
     @Cacheable(value = "ListControllerCache")
     public List<String> getListAvailableDayOfMonth(@PathVariable Integer device, @PathVariable Integer year, @PathVariable Integer month) {
-        return dataEntryService.available(device, year, month);
+        return dataEntryService.listAvailability(device, year, month);
     }
 
 }
