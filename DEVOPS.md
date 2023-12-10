@@ -42,10 +42,10 @@ $ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:l
 ### Configuration
 Note that TTL is set to 10 seconds in the below example.
 ```shell
-spring.cache.type=redis
+spring.cache.redis.enabled=true
 spring.cache.redis.host=localhost
 spring.cache.redis.port=6379
-spring.cache.redis.time-to-live=10000
+spring.cache.redis.time-to-live=60000
 ```
 
 ### Example
