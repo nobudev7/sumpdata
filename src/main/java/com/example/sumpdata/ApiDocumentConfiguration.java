@@ -12,17 +12,17 @@ import java.util.List;
 
 @Configuration
 public class ApiDocumentConfiguration {
-    @Value("${application.version}")
-    private String appVersion;
+    @Value("${api.version}")
+    private String apiVersion;
 
     @Bean
-    public OpenAPI springShopOpenAPI() {
+    public OpenAPI sumpdataOpenAPI() {
         return new OpenAPI()
                 .info(new Info().title("REST API Server for IoT - Sump Water Level Application")
                         .description("A showcase of a Java Spring Boot app that manages IoT device data via REST API. " +
                                 "As a real-world application, this project is intended to collect water level data from " +
                                 "Raspi-Sump - a water level monitor using a Raspberry Pi.")
-                        .version(appVersion)
+                        .version(apiVersion)
                         .license(new License().name("MIT License").url("https://opensource.org/license/mit/")))
                 .servers(List.of(new Server().description("local server").url("http://localhost:8080")));
     }

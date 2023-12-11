@@ -33,6 +33,13 @@ To backfill the past data, use POST with multipart file upload. For example, to 
 $ for F in $(ls waterlevel-202301*); do  curl 'http://192.168.1.169:8080/devices/1/entries/files' -X POST -F files=@$F; done
 ```
 
+## Swagger
+### Swagger UI
+The API documentation is exposed as a HTML page at [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html). It is also exposed to make the API document publically accessible, a link to the Swagger Editor can be used along with the swagger yaml `sump_data_rest_api.yaml` file in the repo as below.
+[Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/ntamagawa/sumpdata/main/src/api/sump_data_rest_api.yaml)
+
+`sump_data_rest_api.yaml` is generated when Maven `verify` plan is run from IDE, or `mvn verify`.
+
 ## Redis server
 ### Installation
 Using Docker, I set up the redis server (no persistent option).
