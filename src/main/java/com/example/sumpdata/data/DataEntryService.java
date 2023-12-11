@@ -13,13 +13,9 @@ public interface DataEntryService {
 
     DataEntry add(DataEntry entry);
 
-    List<DataEntry> retrieveAll(Integer deviceID);
-
     List<DataEntry> retrieveInRange(int deviceId, LocalDateTime start, LocalDateTime end, boolean ascending);
 
     String processCSV(int deviceId, InputStream stream, String filename) throws IOException;
 
-    Optional<DataEntry> getEntry(Integer deviceID, boolean ascending);
-
-    List<String> available(Integer device, Integer year, Integer month);
+    List<String> listAvailability(Integer device, Integer year, Integer month);
 }

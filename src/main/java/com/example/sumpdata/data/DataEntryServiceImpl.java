@@ -1,6 +1,8 @@
 package com.example.sumpdata.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -11,13 +13,12 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@CacheConfig(cacheNames = {"dataaccess"}, cacheManager = "redisCacheManager")
 public class DataEntryServiceImpl implements DataEntryService{
     @Autowired
     private DataEntryRepository dataEntryRepository;
@@ -44,20 +45,7 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
-    public List<DataEntry> retrieveAll(Integer deviceID) {
-        // TODO: The plan is to have either paged results, or upper limit in number of entries to return.
-        // Also, when we provide a way to set query conditions such as oder by measured on, this will need
-        // to be improved.
-        List<DataEntry> dataEntries = new ArrayList<>();
-        if (null == deviceID) {
-            dataEntryRepository.findAll().forEach(dataEntries::add);
-        } else {
-            dataEntryRepository.findByDeviceID(deviceID).forEach(dataEntries::add);
-        }
-        return dataEntries;
-    }
-
-    @Override
+    @Cacheable
     public List<DataEntry> retrieveInRange(int deviceId, LocalDateTime start, LocalDateTime end, boolean ascending) {
         Sort sortBy = ascending ? Sort.by("measuredOn").ascending() : Sort.by("measuredOn").descending();
         return dataEntryRepository.findByDeviceIDAndMeasuredOnBetween(deviceId, start, end, sortBy);
@@ -97,22 +85,8 @@ public class DataEntryServiceImpl implements DataEntryService{
     }
 
     @Override
-    public Optional<DataEntry> getEntry(Integer deviceID, boolean ascending) {
-        List<DataEntry> entries;
-        if (ascending) {
-            entries = dataEntryRepository.findFirstByDeviceIDOrderByMeasuredOnAsc(deviceID);
-        } else {
-            entries = dataEntryRepository.findFirstByDeviceIDOrderByMeasuredOnDesc(deviceID);
-        }
-        if (!entries.isEmpty()) {
-            return Optional.of(entries.getFirst());
-        }
-        // TODO: Consider to implement better response for an error case
-        return Optional.empty();
-    }
-
-    @Override
-    public List<String> available(Integer device, Integer year, Integer month) {
+    @Cacheable
+    public List<String> listAvailability(Integer device, Integer year, Integer month) {
         if (null != month) {
             return dataEntryRepository.availableDateInMonth(device, year, month).stream().map(dt -> dt.replace('-', '/')).toList();
         } else if (null != year){

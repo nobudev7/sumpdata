@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /***
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @Entity
 @Schema(description = "Date model for water level data")
 @IdClass(DataEntryId.class)
-public class DataEntry {
+public class DataEntry implements Serializable {
     @Schema(description = "Device ID", example = "1")
     @Id
     private Integer deviceID;

@@ -33,5 +33,26 @@ To backfill the past data, use POST with multipart file upload. For example, to 
 $ for F in $(ls waterlevel-202301*); do  curl 'http://192.168.1.169:8080/devices/1/entries/files' -X POST -F files=@$F; done
 ```
 
+## Redis server
+### Installation
+Using Docker, I set up the redis server (no persistent option).
+```shell
+$ docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+```
+### Configuration
+Note that TTL is set to 10 seconds in the below example.
+```shell
+spring.cache.redis.enabled=true
+spring.cache.redis.host=localhost
+spring.cache.redis.port=6379
+spring.cache.redis.time-to-live=60000
+```
 
-
+### Example
+Set a breakpoint in controller, then run a curl command that hit the endpoint, twice. The first time will hit the breakpoint, and the second time it will return without running the controller method.
+```shell
+curl 'http://localhost:8080/devices/1/entries/2023/01/29'
+```
+You can see the cache entry in the RedisInsight screen after calling the endpoint by accessing
+`http://localhost:8001/redis-stack/browser`.
+![RedisInsight.png](assets%2FRedisInsight.png)
