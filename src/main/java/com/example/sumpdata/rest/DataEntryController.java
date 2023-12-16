@@ -55,7 +55,7 @@ public class DataEntryController {
     public List<DataEntry> getEntriesByMonth(@PathVariable int device, @PathVariable int year, @PathVariable int month,
                                              @RequestParam(required = false, defaultValue = "true") boolean ascending) {
         // Convert the path variables into range of LocalDateTime
-        LocalDateTime start = LocalDateTime.of(year, month, 1, 1, 0, 0, 0);
+        LocalDateTime start = LocalDateTime.of(year, month, 1, 0, 0, 0, 0);
         LocalDateTime end = LocalDateTime.of(year, month, YearMonth.of(year, month).lengthOfMonth(), 23, 59, 59);
         return dataEntryService.retrieveInRange(device, start, end, ascending);
     }
