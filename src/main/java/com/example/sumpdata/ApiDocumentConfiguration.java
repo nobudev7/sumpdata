@@ -12,7 +12,7 @@ import java.util.List;
 
 @Configuration
 public class ApiDocumentConfiguration {
-    @Value("${api.version}")
+    @Value("1.0.1")
     private String apiVersion;
 
     @Bean

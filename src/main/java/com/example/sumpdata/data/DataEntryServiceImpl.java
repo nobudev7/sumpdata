@@ -19,7 +19,9 @@ import java.util.regex.Pattern;
 
 @Service
 @CacheConfig(cacheNames = {"dataaccess"}, cacheManager = "redisCacheManager")
-public class DataEntryServiceImpl implements DataEntryService{
+public class DataEntryServiceImpl implements DataEntryService {
+    Pattern CSV_FILENAME_PATTERN = Pattern.compile("waterlevel-([0-9]{4})([0-9]{2})([0-9]{2})\\.csv");
+
     @Autowired
     private DataEntryRepository dataEntryRepository;
 
@@ -51,12 +53,11 @@ public class DataEntryServiceImpl implements DataEntryService{
         return dataEntryRepository.findByDeviceIDAndMeasuredOnBetween(deviceId, start, end, sortBy);
     }
 
-    Pattern CSV_FILENAME_PATTERN = Pattern.compile("waterlevel-([0-9]{4})([0-9]{2})([0-9]{2})\\.csv");
     @Override
-    public String processCSV(int deviceId, InputStream inputStream, String filename) throws IOException {
+    public int processCSV(int deviceId, InputStream inputStream, String filename) throws IOException, InvalidCSVFilenameException {
         Matcher matcher = CSV_FILENAME_PATTERN.matcher(filename);
         if (!matcher.find()) {
-            return "Invalid file name pattern: " + filename;
+            throw new InvalidCSVFilenameException("Invalid file name pattern: " + filename);
         }
         String year = matcher.group(1);
         String month = matcher.group(2);
@@ -71,7 +72,7 @@ public class DataEntryServiceImpl implements DataEntryService{
             processOneLine(deviceId, date, line);
             count++;
         }
-        return "Processed " + count + " entries for deviceID " + deviceId;
+        return count;
     }
 
     private void processOneLine(int deviceId, String date, String line) {
@@ -89,7 +90,7 @@ public class DataEntryServiceImpl implements DataEntryService{
     public List<String> listAvailability(Integer device, Integer year, Integer month) {
         if (null != month) {
             return dataEntryRepository.availableDateInMonth(device, year, month).stream().map(dt -> dt.replace('-', '/')).toList();
-        } else if (null != year){
+        } else if (null != year) {
             return dataEntryRepository.availableMonthInYear(device, year).stream().map(mo -> "" + year + "/" + mo).toList();
         } else {
             return dataEntryRepository.availableMonthInYear(device);
