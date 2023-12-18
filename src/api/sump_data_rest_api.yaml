@@ -7,7 +7,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/license/mit/
-  version: "1.0"
+  version: 1.0.1
 servers:
 - url: http://localhost:8080
   description: local server
@@ -109,9 +109,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: object
-                additionalProperties:
-                  type: object
+                $ref: '#/components/schemas/UploadStatus'
   /devices/{device}/list:
     get:
       tags:
@@ -311,3 +309,30 @@ components:
           format: int32
           example: 127
       description: Date model for water level data
+    FileStatus:
+      type: object
+      properties:
+        filename:
+          type: string
+        success:
+          type: boolean
+        numEntries:
+          type: integer
+          format: int32
+        error:
+          type: string
+    UploadStatus:
+      type: object
+      properties:
+        numFiles:
+          type: integer
+          format: int32
+        totalEntries:
+          type: integer
+          format: int32
+        success:
+          type: boolean
+        fileStatus:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileStatus'

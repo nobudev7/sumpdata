@@ -2,13 +2,15 @@ package com.example.sumpdata.rest;
 
 import com.example.sumpdata.data.DataEntry;
 import com.example.sumpdata.data.DataEntryService;
+import com.example.sumpdata.data.InvalidCSVFilenameException;
+import com.example.sumpdata.rest.model.FileStatus;
+import com.example.sumpdata.rest.model.UploadStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,10 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping(path = "devices/{device}/entries")
@@ -74,7 +73,7 @@ public class DataEntryController {
     //       device id doesn't agree with one in the DataEntry.
     @Operation(summary = "Add one data entry as a JSON object.",
             description = "Add or update a single data entry for the specified device with the specified JSON."
-                    )
+    )
     @PostMapping(path = "json", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public @ResponseBody DataEntry addDataEntryJson(@PathVariable Integer device, @RequestBody DataEntry entry) {
         return dataEntryService.add(entry);
@@ -89,25 +88,30 @@ public class DataEntryController {
                     "curl 'http://localhost:8080/devices/2/entries/files' -X POST -F files=@waterlevel-20230805.csv -F files=@waterlevel-20230806.csv\n" +
                     "```")
     @PostMapping(path = "files", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Map<String, Object>> uploadDataEntryFile(@PathVariable Integer device,
-            @RequestParam("files") MultipartFile[] files) {
-        Map<String, Object> uploadDetails = new HashMap<>();
-        uploadDetails.put("numFiles", String.valueOf(files.length));
-        List<Map> statusList = new ArrayList<>();
+    public @ResponseBody UploadStatus uploadDataEntryFile(@PathVariable Integer device,
+                                                          @RequestParam("files") MultipartFile[] files) {
+        UploadStatus uploadStatus = new UploadStatus();
+        uploadStatus.setNumFiles(files.length);
+        boolean isSuccess = true;
+        int totalNumEntries = 0;
         for (int i = 0; i < files.length; i++) {
-            Map<String, String> fileStatusMap = new HashMap<>();
-            fileStatusMap.put("fileName", files[i].getOriginalFilename());
+            FileStatus fileStatus = new FileStatus(files[i].getOriginalFilename());
             try {
-                String status = dataEntryService.processCSV(device, files[i].getInputStream(), files[i].getOriginalFilename());
+                int numEntries = dataEntryService.processCSV(device, files[i].getInputStream(), files[i].getOriginalFilename());
                 // TODO: Consider better status reporting for each file
-                fileStatusMap.put("success", status);
-            } catch (IOException e) {
-                fileStatusMap.put("error", e.getLocalizedMessage());
+                fileStatus.setSuccess(true);
+                fileStatus.setNumEntries(numEntries);
+                totalNumEntries += numEntries;
+            } catch (InvalidCSVFilenameException | IOException e) {
+                isSuccess = false;
+                fileStatus.setError(e.getMessage());
             }
-            statusList.add(fileStatusMap);
+            uploadStatus.addFileStatus(fileStatus);
         }
-        uploadDetails.put("status", statusList);
-        return ResponseEntity.ok(uploadDetails);
+
+        uploadStatus.setTotalEntries(totalNumEntries);
+        uploadStatus.setSuccess(isSuccess);
+        return uploadStatus;
 
     }
 
