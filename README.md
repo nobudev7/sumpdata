@@ -77,12 +77,13 @@ Data sample:
 ## Development and Operations
 For detailed development environment set up steps, and tips for the actual operations of the server environment, see [Development and Operations](DEVOPS.md) 
 
+## Security
+A security feature is implemented. See [Development and Operations](DEVOPS.md) on how to configure.
+
 ## Limitation
 Currently, this application support **local date time** as the timestamp. This is because Raspi-Sump keeps the time component as local time in its CSV files. Thus, on the day time changes, it would skip 1 hour or have 1 hour repeated data. To properly account for the time, especially on the day time changes, it should support UTC, time zones, or offset formats. This also requires a change on the Raspi-Sump side.
 
 ## TODOs
-* Security
-  * Authentication access
 * Improve `devices` endpoint
   * Add CRUD operations for devices
   * Meta data support for devices  
