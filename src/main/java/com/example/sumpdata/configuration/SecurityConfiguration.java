@@ -17,7 +17,6 @@ import java.util.List;
 @Configuration
 public class SecurityConfiguration {
 
-    // 127.0.0.1 – 127.255.255.255 could be IPv4 local host range.
     @Value("${security.allow.ip.list}")
     private List<String > allowIpList;
 
