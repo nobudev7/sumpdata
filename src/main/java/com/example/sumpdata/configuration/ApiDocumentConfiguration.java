@@ -1,4 +1,4 @@
-package com.example.sumpdata;
+package com.example.sumpdata.configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

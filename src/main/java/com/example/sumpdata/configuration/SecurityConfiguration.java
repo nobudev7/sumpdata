@@ -1,6 +1,7 @@
 package com.example.sumpdata.configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -16,15 +17,15 @@ import java.util.List;
 @Configuration
 public class SecurityConfiguration {
 
-    // 127.0.0.0 – 127.255.255.255 could be IPv4 local host range.
-    private static final List<String> allowIpList = List.of("127.0.0.0/8", "::1", "192.168.1.0/24");
+    // 127.0.0.1 – 127.255.255.255 could be IPv4 local host range.
+    @Value("${security.allow.ip.list}")
+    private List<String > allowIpList;
+
     private static final List<IpAddressMatcher> matchers = new ArrayList<>();
-    {
-        allowIpList.forEach(ip -> matchers.add(new IpAddressMatcher(ip)));
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        allowIpList.forEach(ip -> matchers.add(new IpAddressMatcher(ip)));
         http.authorizeHttpRequests((auth) ->
                 auth.anyRequest().access(authorizeIpAddress()));
         return http.build();
