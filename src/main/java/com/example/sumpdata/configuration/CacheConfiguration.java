@@ -1,4 +1,4 @@
-package com.example.sumpdata;
+package com.example.sumpdata.configuration;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.beans.factory.annotation.Value;
