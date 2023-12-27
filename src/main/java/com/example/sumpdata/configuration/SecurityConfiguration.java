@@ -27,6 +27,7 @@ public class SecurityConfiguration {
         allowIpList.forEach(ip -> matchers.add(new IpAddressMatcher(ip)));
         http.authorizeHttpRequests((auth) ->
                 auth.anyRequest().access(authorizeIpAddress()));
+        http.csrf(csrf -> csrf.disable());
         return http.build();
     }
 
