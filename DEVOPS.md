@@ -63,3 +63,13 @@ curl 'http://localhost:8080/devices/1/entries/2023/01/29'
 You can see the cache entry in the RedisInsight screen after calling the endpoint by accessing
 `http://localhost:8001/redis-stack/browser`.
 ![RedisInsight.png](assets%2FRedisInsight.png)
+
+## Security
+A minimal IP address-based security feature is implemented. By default, it allows loop back and some local network access. To override, use the following property.
+```properties
+security.allow.ip.list=<list of ip addresses allowed>
+```
+The intention for this setting is to externalize the allow list. On a production server, you might set the following OS environment variable to allow actual devices' IP addresses.
+```shell
+export SECURITY_ALLOW_IP_LIST=<list of devices ip addresses>
+```
