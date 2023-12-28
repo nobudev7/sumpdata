@@ -111,3 +111,6 @@ server.ssl.key-store-password=mypassword
 server.ssl.key-alias=sumpdata
 server.ssl.enabled=true
 ```
+After enabling SSL, most client application such as `curl` or PostMan fail to verify the cert. For `curl`, use `--insecure` option to allow self-signed cert.
+
+This affects also web ui, such as https://localhost:8080/swagger-ui/index.html. Let browser allow self-signed cert, or make it trusted (Mac/Safari) to view the page.
