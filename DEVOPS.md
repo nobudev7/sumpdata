@@ -73,3 +73,44 @@ The intention for this setting is to externalize the allow list. On a production
 ```shell
 export SECURITY_ALLOW_IP_LIST=<list of devices ip addresses>
 ```
+
+### Enabling SSL
+Under development environment, a self-signed certificate may be used.
+To generate such a cert, use `keytool`. You can just enter for all questions, then `yes` to accept the default value.
+```shell
+$ keytool -genkeypair -alias sumpdata -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore sumpdata.p12 -validity 3650 -storepass mypassword
+```
+```
+What is your first and last name?
+  [Unknown]:  
+What is the name of your organizational unit?
+  [Unknown]:  
+What is the name of your organization?
+  [Unknown]:  
+What is the name of your City or Locality?
+  [Unknown]:  
+What is the name of your State or Province?
+  [Unknown]:  
+What is the two-letter country code for this unit?
+  [Unknown]:  
+Is CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?
+  [no]:  yes
+
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA384withRSA) with a validity of 3,650 days
+	for: CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+
+```
+
+Place the generated p12 file either to a path that is accessible by the app, or under the class path.
+Configure the properties as follows.
+```properties
+server.ssl.key-store-type=PKCS12
+server.ssl.key-store=classpath:sumpdata.p12 # Classpath
+server.ssl.key-store=/path/to/your/sumpdata.p12 # Or file path
+server.ssl.key-store-password=mypassword
+server.ssl.key-alias=sumpdata
+server.ssl.enabled=true
+```
+After enabling SSL, most client application such as `curl` or PostMan fail to verify the cert. For `curl`, use `--insecure` option to allow self-signed cert.
+
+This affects also web ui, such as https://localhost:8080/swagger-ui/index.html. Let browser allow self-signed cert, or make it trusted (Mac/Safari) to view the page.
