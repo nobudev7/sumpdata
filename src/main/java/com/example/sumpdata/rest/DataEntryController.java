@@ -6,6 +6,8 @@ import com.example.sumpdata.data.InvalidCSVFilenameException;
 import com.example.sumpdata.rest.model.FileStatus;
 import com.example.sumpdata.rest.model.UploadStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,7 +33,7 @@ import java.util.List;
 @CacheConfig(cacheNames = {"controller"})
 public class DataEntryController {
 
-    // TODO: How do we want to document the Rest API?
+    Logger logger = LoggerFactory.getLogger(DataEntryController.class);
 
     @Autowired
     private DataEntryService dataEntryService;
@@ -105,6 +107,7 @@ public class DataEntryController {
             } catch (InvalidCSVFilenameException | IOException e) {
                 isSuccess = false;
                 fileStatus.setError(e.getMessage());
+                logger.warn("DeviceID = " + device + ", error=" + e.getMessage());
             }
             uploadStatus.addFileStatus(fileStatus);
         }
