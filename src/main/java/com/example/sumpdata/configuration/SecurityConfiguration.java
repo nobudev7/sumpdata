@@ -1,12 +1,15 @@
 package com.example.sumpdata.configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.util.matcher.IpAddressMatcher;
@@ -25,10 +28,20 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         allowIpList.forEach(ip -> matchers.add(new IpAddressMatcher(ip)));
-        http.authorizeHttpRequests((auth) ->
-                auth.anyRequest().access(authorizeIpAddress()));
+        http
+                .exceptionHandling(exceptionHandling())
+                .authorizeHttpRequests((auth) -> auth.anyRequest().access(authorizeIpAddress()))
+                .csrf(csrf -> csrf.disable());
         http.csrf(csrf -> csrf.disable());
         return http.build();
+    }
+
+    // https://stackoverflow.com/a/77181838
+    private Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandling() {
+        return (eh) -> eh.defaultAuthenticationEntryPointFor(
+                ((request, response, authException) -> response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)),
+                (request) -> request.getRequestURI().startsWith("/devices/")
+        );
     }
 
     // https://stackoverflow.com/questions/72366267/matching-ip-address-with-authorizehttprequests
@@ -41,7 +54,14 @@ public class SecurityConfiguration {
 
     private boolean checkIPAddress(HttpServletRequest request) {
         String ipAddress = request.getRemoteAddr();
-        System.out.println(ipAddress);
+        String url = request.getServletPath();
+        boolean matched = matchers.stream().anyMatch(matcher -> matcher.matches(request));
+        if (matched) {
+            System.out.println("Access granted to ip: " + ipAddress + ", url=" + url);
+        } else {
+            System.out.println("Access denied to ip: " + ipAddress + ", url=" + url);
+        }
+
         return matchers.stream().anyMatch(matcher -> matcher.matches(request));
     }
 }
