@@ -9,7 +9,7 @@
         <!-- Set LOG_DIR environment variable for the log folder. Otherwise, ../logs folder will be used. -->
         <RollingFile name="RollingFile"
                      fileName="${env:LOG_DIR:-../logs}/sumpdata-server.log"
-                     filePattern="${env:LOG_DIR:-../logs}/sumpdata-server-%d{-yyyy-MM-dd}-%i.log">
+                     filePattern="${env:LOG_DIR:-../logs}/sumpdata-server-%d{-yyyy-MM-dd}-%i.log.gz">
             <PatternLayout>
                 <pattern>%d %p [%t] %C{1.} %m%n</pattern>
             </PatternLayout>
