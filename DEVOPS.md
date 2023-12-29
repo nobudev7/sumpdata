@@ -106,7 +106,7 @@ Configure the properties as follows.
 ```properties
 server.ssl.key-store-type=PKCS12
 server.ssl.key-store=classpath:sumpdata.p12 # Classpath
-server.ssl.key-store=/path/to/your/sumpdata.p12 # Or file path
+# server.ssl.key-store=/path/to/your/sumpdata.p12 # Or file path
 server.ssl.key-store-password=mypassword
 server.ssl.key-alias=sumpdata
 server.ssl.enabled=true
@@ -114,3 +114,13 @@ server.ssl.enabled=true
 After enabling SSL, most client application such as `curl` or PostMan fail to verify the cert. For `curl`, use `--insecure` option to allow self-signed cert.
 
 This affects also web ui, such as https://localhost:8080/swagger-ui/index.html. Let browser allow self-signed cert, or make it trusted (Mac/Safari) to view the page.
+
+## Logging
+Log4j2 wrapped by SLF4J is used for logging. By default, `logs` directory is created one level above the working directory, and `sampdata-server.log` is created in the directory.
+
+### Rolling file
+The current setting rolls the log file on startup, daily, and when it gets 10MB, with `.gz` compression.
+* To remove compression, take out `.gz` from the `filePattern` in log4j2.xml.
+* The log file folder can be set vy `LOG_DIR` environment variable.
+* Rolling file is default max 7 files to keep. After that, the oldest file is removed, and shifts log file suffix (so, `*-1.log.gz` is always the oldest).
+* TODO: It might be a good idea to make rolling policy overrideable. 
