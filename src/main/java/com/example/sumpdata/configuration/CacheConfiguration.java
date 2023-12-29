@@ -3,7 +3,7 @@ package com.example.sumpdata.configuration;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachingConfigurerSupport;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.cache.support.NoOpCacheManager;
@@ -19,7 +19,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableCaching
-public class CacheConfiguration extends CachingConfigurerSupport {
+public class CacheConfiguration implements CachingConfigurer {
 
     @Value("${spring.cache.caffeine.spec}")
     private String caffeineSpec;
