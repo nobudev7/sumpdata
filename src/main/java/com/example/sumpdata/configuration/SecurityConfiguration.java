@@ -2,6 +2,8 @@ package com.example.sumpdata.configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +24,8 @@ public class SecurityConfiguration {
 
     @Value("${security.allow.ip.list}")
     private List<String > allowIpList;
+
+    Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
 
     private static final List<IpAddressMatcher> matchers = new ArrayList<>();
 
@@ -57,9 +61,9 @@ public class SecurityConfiguration {
         String url = request.getServletPath();
         boolean matched = matchers.stream().anyMatch(matcher -> matcher.matches(request));
         if (matched) {
-            System.out.println("Access granted to ip: " + ipAddress + ", url=" + url);
+            logger.info("Access granted to ip: " + ipAddress + ", url=" + url);
         } else {
-            System.out.println("Access denied to ip: " + ipAddress + ", url=" + url);
+            logger.warn("Access denied to ip: " + ipAddress + ", url=" + url);
         }
 
         return matchers.stream().anyMatch(matcher -> matcher.matches(request));
