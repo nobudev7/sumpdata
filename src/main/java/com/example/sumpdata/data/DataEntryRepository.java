@@ -15,7 +15,7 @@ public interface DataEntryRepository extends JpaRepository<DataEntry, DataEntryI
 
     @Query("SELECT distinct(date(de.measuredOn)) dt from DataEntry as de where de.deviceID=?1 and year(de.measuredOn) = ?2 and month(de.measuredOn) = ?3  order by date(de.measuredOn)")
     List<String> availableDateInMonth(Integer deviceID, Integer year, Integer month);
-    @Query("SELECT distinct(month(de.measuredOn)) dt from DataEntry as de where de.deviceID=?1 and year(de.measuredOn) = ?2 order by month(de.measuredOn)")
+    @Query("SELECT distinct(DATE_FORMAT(de.measuredOn,'%m')) dt from DataEntry as de where de.deviceID=?1 and year(de.measuredOn) = ?2 order by dt")
     List<String> availableMonthInYear(Integer device, Integer year);
     @Query("SELECT distinct(year(de.measuredOn)) dt from DataEntry as de where de.deviceID=?1 order by year(de.measuredOn)")
     List<String> availableMonthInYear(Integer device);
