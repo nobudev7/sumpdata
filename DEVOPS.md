@@ -2,6 +2,10 @@
 
 ## Development Environment
 
+### My Instance Setting
+The whole local development is set up with a locally running Spring Boot app, Streamlit (Python application), and in Docker container, MySQL, Redis, and Nginx.
+![MacNginxDiagram.png](assets%2FMacNginxDiagram.png)
+
 ### Set up data source 
 For a data source for this application, I used MySQL on Docker. To persists the data, set up a volume.
 ```
