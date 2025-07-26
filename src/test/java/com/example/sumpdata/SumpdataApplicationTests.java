@@ -2,19 +2,18 @@ package com.example.sumpdata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.sumpdata.data.DataEntryService;
 import com.example.sumpdata.rest.DataEntryController;
 import com.example.sumpdata.rest.ListController;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import com.example.sumpdata.data.DataEntryService;
 
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest({DataEntryController.class, ListController.class})
 class SumpdataApplicationTests {
 
     @Autowired
@@ -23,11 +22,9 @@ class SumpdataApplicationTests {
     @Autowired
     private ListController listController;
 
-    @Autowired
+    @MockBean
     private DataEntryService dataEntryService;
 
-    @Autowired
-    private MockMvc mockMvc;
 
     @Test
     void contextLoads() {

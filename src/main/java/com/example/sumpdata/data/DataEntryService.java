@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface DataEntryService {
     DataEntry add(int deviceId, LocalDateTime measuredOn, String depthInCm);
