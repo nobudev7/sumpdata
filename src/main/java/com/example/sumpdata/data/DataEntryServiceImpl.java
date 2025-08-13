@@ -1,6 +1,7 @@
 package com.example.sumpdata.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +14,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +26,9 @@ public class DataEntryServiceImpl implements DataEntryService {
 
     @Autowired
     private DataEntryRepository dataEntryRepository;
+
+    @Value("${sump.batch.size:1000}")
+    private int batchSize;
 
     @Override
     public DataEntry add(int deviceId, LocalDateTime measuredOn, String depthInCm) {
@@ -68,21 +73,34 @@ public class DataEntryServiceImpl implements DataEntryService {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line = null;
         int count = 0;
+        List<DataEntry> entries = new ArrayList<>();
         while ((line = reader.readLine()) != null) {
-            processOneLine(deviceId, date, line);
+            DataEntry dataEntry = processOneLine(deviceId, date, line);
+            entries.add(dataEntry);
             count++;
+            if (entries.size() == batchSize) {
+                dataEntryRepository.saveAll(entries);
+                entries.clear();
+            }
+        }
+        if (!entries.isEmpty()) {
+            dataEntryRepository.saveAll(entries);
         }
         return count;
     }
 
-    private void processOneLine(int deviceId, String date, String line) {
+    private DataEntry processOneLine(int deviceId, String date, String line) {
         String[] values = line.split(",");
         // The CSV format is <time>,<depthInCM>
         String time = values[0];
         String depthInCM = values[1];
 
-        LocalDateTime measuredOn = LocalDateTime.parse(date + time, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        add(deviceId, measuredOn, depthInCM);
+        DataEntry dataEntry = new DataEntry();
+        dataEntry.setDeviceID(deviceId);
+        dataEntry.setMeasuredOn(LocalDateTime.parse(date + time, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        BigDecimal valueInCentiMeter = new BigDecimal(depthInCM);
+        dataEntry.setValue(valueInCentiMeter.multiply(BigDecimal.TEN).intValue());
+        return dataEntry;
     }
 
     @Override
