@@ -38,7 +38,7 @@ The API supports 2 resources, `entries` and `devices`. `entries` endpoint is to 
 
 <details>
   <summary>Note</summary>
-Due to the Swagger limitation, I decided to separate the `devices/{device}/entries` endpoint to add data entries with different paths. The same (one) endpoint path with different request media types is supported by Spring, but Swagger can't create separate section for each media type request for the same path, and commingle all request parameters. See <a href="https://github.com/ntamagawa/sumpdata/blob/v0.1.0/src/main/java/com/example/sumpdata/rest/DataEntryController.java">v0.1<a/> implementation of `DataEntryController` for a way to use the same endpoint for different media types. Semantically, that works better as path represents a resource, HTTP method is a verb, and media type determines the format for the data to be transmitted.
+Due to the Swagger limitation, I decided to separate the `devices/{device}/entries` endpoint to add data entries with different paths. The same (one) endpoint path with different request media types is supported by Spring, but Swagger can't create separate section for each media type request for the same path, and commingle all request parameters. See <a href="https://github.com/ntamagawa/sumpdata/blob/v0.1.0/src/main/java/com/example/sumpdata/rest/DataEntryController.java">v0.1</a> implementation of `DataEntryController` for a way to use the same endpoint for different media types. Semantically, that works better as path represents a resource, HTTP method is a verb, and media type determines the format for the data to be transmitted.
 </details>
 
 ### Add a single data entry
